@@ -1,66 +1,112 @@
 public class SpaceObject {
-    private int mass;
-    private int radius;
-    private int gravity;
-    private int xCoord;
-    private int yCoord;
-    private int xSpeed;
-    private int ySpeed;
-    private int xAcc;
-    private int yAcc;
+    private double gravitionalConstant = 6.67;
+    private double mass;
+    private double radius;
+    private double xCoord;
+    private double yCoord;
+    private double xVel;
+    private double yVel;
+    private double xAcc;
+    private double yAcc;
     public SpaceObject(){
         mass = 10;
         radius = 10;
-        gravity = 1;
         xCoord = 250;
         yCoord = 250;
-        xSpeed = 0;
-        ySpeed = 0;
+        xVel = 0;
+        yVel = 0;
         xAcc = 0;
         yAcc = 0;
     }
 
-    public SpaceObject(int setXCoord, int setYCoord, int setMass, int setRadius){
+    public SpaceObject(double setXCoord, double setYCoord, double setMass, double setRadius){
         mass = setMass;
         radius = setRadius;
-        gravity = 1;
         xCoord = setXCoord;
         yCoord = setYCoord;
-        xSpeed = 0;
-        ySpeed = 0;
+        xVel = 0;
+        yVel = 0;
         xAcc = 0;
         yAcc = 0;
     }
 
-    public int getRadius() {
+    public double getRadius() {
         return radius;
     }
-
-    public int getGravity() {
-        return gravity;
+    public double getMass(){
+        return mass;
     }
-
-    public int getXCoord() {
+    public double getXCoord() {
         return xCoord;
     }
 
-    public int getYCoord() {
+    public double getYCoord() {
         return yCoord;
     }
 
-    public int getXSpeed() {
-        return xSpeed;
+    public double getXVel() {
+        return xVel;
     }
 
-    public int getYSpeed() {
-        return ySpeed;
+    public double getYVel() {
+        return yVel;
     }
 
-    public int getXAcc() {
+    public double getXAcc() {
         return xAcc;
     }
 
-    public int getYAcc() {
+    public double getYAcc() {
         return yAcc;
     }
+
+    public void setXVel(double newXVel){
+        this.xVel = newXVel;
+    }
+
+    public void setYVel(double newYVel){
+        this.yVel = newYVel;
+    }
+    public void setXAcc(double newXAcc){
+        this.xAcc = newXAcc;
+    }
+    public void setYAcc(double newYAcc){
+        this.yAcc = newYAcc;
+    }
+
+    public void setXCoord(double newXCoord){
+        this.xCoord = newXCoord;
+    }
+    public void setYCoord(double newYCoord){
+        this.yCoord = newYCoord;
+    }
+
+    public void updatePosition(int dt){
+        double dx = this.getXVel() * dt;
+        double dy = this.getYVel() * dt;
+        this.setXCoord(this.getXCoord() + dx);
+        this.setYCoord(this.getYCoord() + dx);
+    }
+    
+    public void updateVelocity(int dt){
+        double dxVel = this.getXAcc() * dt;
+        double dyVel = this.getYAcc() * dt;
+        this.setXVel(this.getXVel() + dxVel);
+        this.setYVel(this.getYVel() + dyVel);
+    }
+
+    public void updateAcceleration(SpaceObject influencingObject){
+        double F;
+        double distance;
+        double dx = influencingObject.getXCoord() - this.getXCoord();
+        double dy = influencingObject.getYCoord() - this.getYCoord();
+        distance = Math.sqrt(Math.pow(Math.abs(this.getXCoord()) - Math.abs(influencingObject.getXCoord()), 2) +
+        + (Math.pow(Math.abs(this.getYCoord()) - Math.abs(influencingObject.getYCoord()), 2)));
+        F = gravitionalConstant * this.getMass() * influencingObject.getMass() / Math.pow(distance, 2);
+        this.setXAcc(this.getXAcc() + (dx * F));
+        this.setYAcc(this.getYAcc() + (dy * F));
+
+    }
+
+
 }
