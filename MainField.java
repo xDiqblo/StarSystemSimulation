@@ -1,6 +1,5 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.geom.Ellipse2D;
 
 import static java.lang.Thread.*;
 
@@ -8,26 +7,34 @@ public class MainField extends JPanel {
     private JFrame mainFrame;
     private int width;
     private int height;
-    private int someObjectsCount;
+    private int planetsCount;
     private int timer;
-    private SpaceObject[] someObjects;
+    private Planet[] planets;
+    private Star[] stars;
+    private int starsCount;
+    private int objectsCount;
+
 
     public MainField() {
         initMainFrame(500, 500);
         timer = 0;
     }
 
-    public void updateTimer(int dt){
+    public void updateTimer(int dt) {
         this.timer += dt;
     }
-    public MainField(int setHorizontalSize, int setVerticalSize) {
-        initMainFrame(setHorizontalSize, setVerticalSize);
+
+    public MainField(int setWidth, int setHeight) {
+        initMainFrame(setWidth, setHeight);
         timer = 0;
     }
 
     private void initMainFrame(int setWidth, int setHeight) {
-        someObjectsCount = 0;
-        someObjects = new SpaceObject[500];
+        planetsCount = 0;
+        planets = new Planet[500];
+        starsCount = 0;
+        stars = new Star[5];
+        objectsCount = 0;
         this.width = setWidth;
         this.height = setHeight;
         mainFrame = new JFrame("Simulation");
@@ -39,64 +46,63 @@ public class MainField extends JPanel {
         mainFrame.setVisible(true);
     }
 
-    public void createNewSomeObject(SpaceObject someObject) {
-        if (someObjectsCount < someObjects.length) { // Проверка на переполнение массива
-            this.someObjects[someObjectsCount] = someObject;
-            someObjectsCount++;
-            repaint(); // Вызов перерисовки компонента
+    public void createNewPlanet(Planet planet) {
+        if (planetsCount < planets.length) { // Проверка на переполнение массива
+            this.planets[planetsCount] = planet;
+            planetsCount++;
+            objectsCount++;
+
         }
     }
 
-    public void updateField(){
-        for (int i = 0; i < someObjectsCount; i++){
-            repaint();
+
+    public void createNewStar(Star star){
+        if (starsCount < stars.length){
+            this.stars[starsCount] = star;
+            starsCount++;
+            objectsCount++;
+
         }
     }
+
     @Override
-    public void paintComponent(Graphics g) { // Переопределение метода padoubleComponent для рисования
-        super.paintComponent(g); // Вызов родительской реализации для корректной отрисовки
-        for (int i = 0; i < someObjectsCount; i++) {
-            paintObject(g, someObjects[i]); // Рисование каждого объекта
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        for (int i = 0; i < planetsCount; i++) {
+            planets[i].draw(g);
+        }
+        for (int i = 0; i < starsCount; i++) {
+            stars[i].draw(g);
         }
     }
 
-    private void paintObject(Graphics gg, SpaceObject someObject) {
-        Graphics2D g = (Graphics2D) gg;
-        double leftX = someObject.getXCoord() - someObject.getRadius();
-        double upperY = someObject.getYCoord() - someObject.getRadius();
-        double diameter = someObject.getRadius() * 2;
 
-        // Использование объекта Graphics для рисования
-        Ellipse2D.Double ellipse = new Ellipse2D.Double(leftX, upperY, diameter, diameter);
-        g.draw(ellipse);
-        g.fill(ellipse);
-    }
 
-    public void processingCycle(int setDt){
+    public void processingCycle(int setDt) {
         int dt = setDt;
-        while (true){
+        while (true) {
+
+            processingIteration(dt);
+            repaint();
             try {
                 // Остановить программу на 500 миллисекунд
-                Thread.sleep(dt * 500);
+                Thread.sleep(1000 / dt);
             } catch (InterruptedException e) {
                 // Обработка возможного исключения, если поток прерван
                 e.printStackTrace();
             }
-            processingIteration(dt);
-            updateField();
-        }
-    }
-    private void processingIteration(int dt){
-        this.updateTimer(dt);
-        for (int i = 0; i < someObjectsCount; i++){
-            for (int j = 0; j < someObjectsCount; j++) {
-                if (i != j) {
-                    someObjects[i].updateAcceleration(someObjects[j]);
-                    someObjects[i].updateVelocity(dt);
-                    someObjects[i].updatePosition(dt);
-                }
-            }
         }
     }
 
+    private void processingIteration(int dt) {
+        this.updateTimer(dt);
+        for (int i = 0; i < planetsCount; i++) {
+            for (int j = 0; j < starsCount; j++) {
+                planets[i].updateAcceleration(stars[j]);
+                planets[i].updateVelocity(dt);
+                planets[i].updatePosition(dt, stars[j]);
+            }
+        }
+    }
 }
+
