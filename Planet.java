@@ -19,7 +19,7 @@ public class Planet extends SpaceObject{
         yAcc = 0;
     }
 
-    public Planet(double setXCoord, double setYCoord, double setMass, double setRadius, String setName){
+    public Planet(double setXCoord, double setYCoord, double setMass, double setRadius){
         super(setXCoord, setYCoord, setMass, setRadius);
         rotationAngle = Math.random() * 2 * Math.PI;
         xVel = 0;

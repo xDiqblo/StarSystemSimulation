@@ -2,6 +2,9 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 public class MainField extends JPanel {
     private JFrame mainFrame;
@@ -36,6 +39,15 @@ public class MainField extends JPanel {
         this.width = setWidth;
         this.height = setHeight;
         mainFrame = new JFrame("Simulation");
+        mainFrame.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e){
+                double x = e.getX();
+                double y = e.getY();
+                Planet planet = new Planet(x, y, 6e+24, 6.0);
+                createNewPlanet(planet);
+            }
+        });
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainFrame.setSize(setWidth, setHeight);
         mainFrame.setLocationRelativeTo(null);
@@ -89,7 +101,6 @@ public class MainField extends JPanel {
 
     public void processingCycle() {
         while (true) {
-
             processingIteration(delayTick);
             repaint();
             try {
@@ -99,6 +110,7 @@ public class MainField extends JPanel {
                 // Обработка возможного исключения, если поток прерван
                 e.printStackTrace();
             }
+
         }
     }
     private void processingIteration(int delayTick) {
