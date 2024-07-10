@@ -1,12 +1,15 @@
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
-
-import static java.lang.Thread.*;
 
 public class MainField extends JPanel {
     private JFrame mainFrame;
+    private JPanel slidersPanel;
+    private JSlider timeSlider;
     private int width;
     private int height;
+    private int delayTick;
     private int planetsCount;
     private int timer;
     private Planet[] planets;
@@ -14,14 +17,8 @@ public class MainField extends JPanel {
     private int starsCount;
     private int objectsCount;
 
-
-    public MainField() {
-        initMainFrame(500, 500);
-        timer = 0;
-    }
-
-    public void updateTimer(int dt) {
-        this.timer += dt;
+    public void updateTimer(int delayTick) {
+        this.timer += delayTick;
     }
 
     public MainField(int setWidth, int setHeight) {
@@ -35,14 +32,28 @@ public class MainField extends JPanel {
         starsCount = 0;
         stars = new Star[5];
         objectsCount = 0;
+        delayTick = 100;
         this.width = setWidth;
         this.height = setHeight;
         mainFrame = new JFrame("Simulation");
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainFrame.setSize(setWidth, setHeight);
         mainFrame.setLocationRelativeTo(null);
+
+        timeSlider = new JSlider(1, 1000, 41);
+        timeSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                delayTick = timeSlider.getValue();
+            }
+        });
+
+        mainFrame.setLayout(new BorderLayout()); // Установка менеджера компоновки
         this.setPreferredSize(new Dimension(setWidth, setHeight));
-        mainFrame.add(this);
+        mainFrame.add(this, BorderLayout.CENTER); // Добавление основного компонента окна в центр
+        mainFrame.add(timeSlider, BorderLayout.NORTH);
+        mainFrame.pack(); // Упаковка компонентов
+        mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         mainFrame.setVisible(true);
     }
 
@@ -76,33 +87,46 @@ public class MainField extends JPanel {
         }
     }
 
-
-
-    public void processingCycle(int setDt) {
-        int dt = setDt;
+    public void processingCycle() {
         while (true) {
 
-            processingIteration(dt);
+            processingIteration(delayTick);
             repaint();
             try {
                 // Остановить программу на 500 миллисекунд
-                Thread.sleep(1000 / dt);
+                Thread.sleep(1000 / delayTick);
             } catch (InterruptedException e) {
                 // Обработка возможного исключения, если поток прерван
                 e.printStackTrace();
             }
         }
     }
-
-    private void processingIteration(int dt) {
-        this.updateTimer(dt);
+    private void processingIteration(int delayTick) {
+        this.updateTimer(delayTick);
         for (int i = 0; i < planetsCount; i++) {
             for (int j = 0; j < starsCount; j++) {
                 planets[i].updateAcceleration(stars[j]);
-                planets[i].updateVelocity(dt);
-                planets[i].updatePosition(dt, stars[j]);
+                planets[i].updateVelocity(delayTick);
+                borderCheck(planets[i]);
+                planets[i].updatePosition(delayTick, stars[j]);
+
             }
         }
+
+    }
+    public void borderCheck(Planet planet){
+        int leftX = 0;
+        int upperY = 0;
+        int rightX = width;
+        int lowerY = height;
+
+        if (planet.getXCoord() - planet.getRadius() <= leftX || planet.getXCoord() + planet.getRadius() >= rightX){
+            planet.setXVel(-planet.getXVel());
+        }
+        if (planet.getYCoord() - planet.getRadius() <= upperY || planet.getYCoord() + planet.getRadius() >= lowerY){
+            planet.setYVel(-planet.getYVel());
+        }
+
     }
 }
 

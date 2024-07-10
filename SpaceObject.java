@@ -1,9 +1,9 @@
 public class SpaceObject {
     protected double gravitionalConstant = 6.67;
-    private double mass;
+     double mass;
     private double radius;
-    private double xCoord;
-    private double yCoord;
+    protected double xCoord;
+    protected double yCoord;
 
     public SpaceObject(){
         mass = 10;

@@ -1,4 +1,5 @@
 import java.awt.*;
+import javax.swing.*;
 import java.awt.geom.Ellipse2D;
 
 public class Planet extends SpaceObject{
@@ -16,10 +17,9 @@ public class Planet extends SpaceObject{
         yVel = 0;
         xAcc = 0;
         yAcc = 0;
-
     }
 
-    public Planet(double setXCoord, double setYCoord, double setMass, double setRadius){
+    public Planet(double setXCoord, double setYCoord, double setMass, double setRadius, String setName){
         super(setXCoord, setYCoord, setMass, setRadius);
         rotationAngle = Math.random() * 2 * Math.PI;
         xVel = 0;
@@ -58,7 +58,7 @@ public class Planet extends SpaceObject{
 
 // Константа гравитационной постоянной (примерное значение)
 final double G = 6.67430e-11;
-final double softCoeff = 1e-100;
+final double softCoeff = 1e-18;
 
     // Метод для расчета гравитационного притяжения и обновления ускорения
     public void updateAcceleration(Star star) {
@@ -80,21 +80,24 @@ final double softCoeff = 1e-100;
         this.xAcc = accelerationX;
         this.yAcc = accelerationY;
     }
+    // Метод для вычисления ускорения в двухмерном пространстве
 
     // Метод для обновления скорости
     public void updateVelocity(double dt) {
-        this.xVel += this.xAcc * dt;
-        this.yVel += this.yAcc * dt;
+        double updateDt = dt / 410;
+        this.xVel += this.xAcc * updateDt;
+        this.yVel += this.yAcc * updateDt;
     }
 
     // Метод для обновления позиции
     public void updatePosition(double dt, Star star) {
-        rotationAngle += angularSpeed * dt;
-        double orbitalRadius = Math.sqrt(Math.pow(Math.abs(this.getXCoord()) - Math.abs(star.getXCoord()), 2) +
-                + (Math.pow(Math.abs(this.getYCoord()) - Math.abs(star.getYCoord()), 2)));
+        double updateDt = dt / 410;
+        rotationAngle += angularSpeed * updateDt;
+        double orbitalRadius = Math.sqrt(Math.pow(star.getXCoord() - this.getXCoord(), 2) +
+                + (Math.pow(star.getYCoord() - this.getYCoord(), 2)));
 
-        double dx = Math.cos(rotationAngle) * (orbitalRadius); // предполагаем, что orbitalRadius - это радиус орбиты
-        double dy = Math.sin(rotationAngle) * orbitalRadius;
+        double dx = Math.cos(rotationAngle) * orbitalRadius + this.xVel * updateDt / 10; // предполагаем, что orbitalRadius - это радиус орбиты
+        double dy = Math.sin(rotationAngle) * orbitalRadius + this.yVel * updateDt / 10;
 
         double finalX = star.getXCoord() + dx; // предполагаем, что star - это центральное тело, вокруг которого вращается объект
         double finalY = star.getYCoord() + dy;
@@ -108,10 +111,11 @@ final double softCoeff = 1e-100;
         double leftX = (getXCoord() - getRadius()) ;
         double upperY = (getYCoord() - getRadius());
         double diameter = (getRadius() * 2);
-
         // Использование объекта Graphics для рисования
         Ellipse2D.Double ellipse = new Ellipse2D.Double(leftX, upperY, diameter, diameter);
         g.fill(ellipse);
+
+
     }
 }
 
