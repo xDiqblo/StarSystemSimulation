@@ -91,13 +91,13 @@ final double softCoeff = 1e-18;
 
     // Метод для обновления позиции
     public void updatePosition(double dt, Star star) {
-        double updateDt = dt / 410;
+        double updateDt = dt / 4100;
         rotationAngle += angularSpeed * updateDt;
         double orbitalRadius = Math.sqrt(Math.pow(star.getXCoord() - this.getXCoord(), 2) +
                 + (Math.pow(star.getYCoord() - this.getYCoord(), 2)));
 
-        double dx = Math.cos(rotationAngle) * orbitalRadius + this.xVel * updateDt / 10; // предполагаем, что orbitalRadius - это радиус орбиты
-        double dy = Math.sin(rotationAngle) * orbitalRadius + this.yVel * updateDt / 10;
+        double dx = Math.cos(rotationAngle) * orbitalRadius - this.xVel * updateDt / 10; // предполагаем, что orbitalRadius - это радиус орбиты
+        double dy = Math.sin(rotationAngle) * orbitalRadius - this.yVel * updateDt / 10;
 
         double finalX = star.getXCoord() + dx; // предполагаем, что star - это центральное тело, вокруг которого вращается объект
         double finalY = star.getYCoord() + dy;
