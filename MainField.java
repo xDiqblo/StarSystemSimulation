@@ -8,7 +8,10 @@ import java.awt.event.MouseListener;
 
 public class MainField extends JPanel {
     private JFrame mainFrame;
-    private JPanel slidersPanel;
+    private JLabel delayValueLabel;
+    private JLabel delayTextLabel;
+    private JLabel timerValueLabel;
+    private JLabel timerTextLabel;
     private JSlider timeSlider;
     private int width;
     private int height;
@@ -28,7 +31,12 @@ public class MainField extends JPanel {
         initMainFrame(setWidth, setHeight);
         timer = 0;
     }
-
+    public int getWidth(){
+        return width;
+    }
+    public int getHeight(){
+        return height;
+    }
     private void initMainFrame(int setWidth, int setHeight) {
         planetsCount = 0;
         planets = new Planet[500];
@@ -52,7 +60,7 @@ public class MainField extends JPanel {
         mainFrame.setSize(setWidth, setHeight);
         mainFrame.setLocationRelativeTo(null);
 
-        timeSlider = new JSlider(1, 1000, 41);
+        timeSlider = new JSlider(1, 500, 41);
         timeSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
@@ -60,14 +68,42 @@ public class MainField extends JPanel {
             }
         });
 
+        delayValueLabel = new JLabel();
+        delayValueLabel.setPreferredSize(new Dimension(100, 20));
+
+        timerValueLabel = new JLabel();
+        timerValueLabel.setPreferredSize(new Dimension(100, 20));
+
+        // Создаем основную панель с BoxLayout
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+
+        // Добавляем timeSlider на основную панель
+        mainPanel.add(timeSlider);
+
+        // Создаем панель для JLabel с BoxLayout
+        JPanel labelPanel = new JPanel();
+        labelPanel.setLayout(new BoxLayout(labelPanel, BoxLayout.Y_AXIS));
+
+        // Добавляем JLabel на панель в нужном порядке
+        labelPanel.add(delayValueLabel);
+        labelPanel.add(timerValueLabel);
+
+        // Добавляем панель с JLabel на основную панель
+        mainPanel.add(labelPanel);
+
         mainFrame.setLayout(new BorderLayout()); // Установка менеджера компоновки
         this.setPreferredSize(new Dimension(setWidth, setHeight));
+
         mainFrame.add(this, BorderLayout.CENTER); // Добавление основного компонента окна в центр
-        mainFrame.add(timeSlider, BorderLayout.NORTH);
+        mainFrame.add(mainPanel, BorderLayout.NORTH); // Добавление основной панели на север
+
         mainFrame.pack(); // Упаковка компонентов
         mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         mainFrame.setVisible(true);
     }
+
+
 
     public void createNewPlanet(Planet planet) {
         if (planetsCount < planets.length) { // Проверка на переполнение массива
@@ -103,6 +139,15 @@ public class MainField extends JPanel {
         while (true) {
             processingIteration(delayTick);
             repaint();
+
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    timerValueLabel.setText("Таймер: " + timer);
+                    delayValueLabel.setText("Значение тика: " + delayTick);
+                }
+            });
+
             try {
                 // Остановить программу на 500 миллисекунд
                 Thread.sleep(1000 / delayTick);
